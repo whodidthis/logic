@@ -1,5 +1,5 @@
 (ns logic.numbers-fun
-  (:refer-clojure :exclude [even? pos? odd?])
+  (:refer-clojure :exclude [even? odd? take drop merge])
   (:require [clojure.core.match :refer [match]]
             [defun :refer [defun]]))
 
@@ -67,7 +67,24 @@
            [([] :seq) a] a
            [([x1 & xs] :seq) a] (recur xs ['s a]))))
 
-(defun merger
+(defun take
+  ([0 x] [])
+  ([n x] (recur n x []))
+  ([0 x a] a)
+  ([['s n] ([] :seq) a] a)
+  ([['s n] ([x1 & xs] :seq) a] (recur n xs (conj a x1))))
+
+(take ['s ['s ['s ['s 0]]]] ['a 'b 'c])
+
+(defun drop
+  ([0 x] x)
+  ([['s n] ([] :seq)] [])
+  ([['s n] ([_ & xs] :seq)] (recur n xs)))
+
+(drop ['s ['s ['s ['s ['s 0]]]]] ['a 'b 'c 'd])
+
+(defun merge
+  ([x y] (recur x y []))
   ([([] :seq) y r] (concat r y))
   ([x ([] :seq) r] (concat r x))
   ([([x1 & xs] :seq) :as x ([y1 & ys] :seq) :as y r]
@@ -78,13 +95,16 @@
 (defun merge-sort
   ([([] :seq)] [])
   ([([x1] :seq)] [x1])
-  ([([_ & _] :seq) :as x]))
+  ([([_ & _] :seq) :as x]
+   (let [size (division (length x) ['s ['s 0]])]
+     (merge (merge-sort (take size x)) (merge-sort (drop size x))))))
 
 (length [])
-(merge-sort [0])
+(merge-sort [['s ['s 0]] ['s ['s ['s 0]]] 0 0 ['s 0] 0])
+(merge-sort ['a 'b 'c 'd 'e])
 
-(merger [0] [['s 0]] [])
-(merger [['s 0]] [0] [])
+(merger [0] [['s 0]])
+(merger [['s 0]] [0])
 
 (merger [['s 0]] [] [])
 
