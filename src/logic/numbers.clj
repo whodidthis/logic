@@ -110,29 +110,3 @@
     (fresh [f1]
       (factorial p f1)
       (times ['s p] f1 f))))
-
-(run 1 [q]
-  (fresh [z]
-    (factorial ['s ['s ['s ['s 0]]]] z)
-    (== q z)))
-; => (_0)
-(run 1 [q]
-  (natural-number ['s 0]))
-; => (_0)
-
-(defne plus [x y z]
-  ([0 y y])
-  ([['s x1] y ['s z1]]
-    (plus x1 y z1)))
-
-(run 1 [q]
-  (fresh [z]
-    (plus 0 ['s 0] z)
-    (== q z)))
-; => ([s 0])
-
-(run 1 [q]
-  (fresh [y]
-    (plus ['s 0] y ['s ['s ['s ['s 0]]]])
-    (== q y)))
-; => ([s [s [s 0]]])
