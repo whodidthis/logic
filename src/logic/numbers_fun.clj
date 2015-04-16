@@ -28,10 +28,10 @@
   ([x y] (less? x y)))
 
 (defn greater? [x y]
-  (less y x))
+  (less? y x))
 
 (defn greater-or-equal? [x y]
-  (less-or-equal y x))
+  (less-or-equal? y x))
 
 (defun plus
   ([0 y] y)
@@ -47,51 +47,63 @@
   ([x y] (recur x y 0)))
 
 (defun division
-  ([x y a] (if (less x y)
+  ([x y a] (if (less? x y)
              a
              (recur (minus x y) y ['s a])))
   ([x y] (if (greater? y 0) (recur x y 0))))
 
+(defun length
+  ([([] :seq)] 0)
+  ([([x1 & xs] :seq)] (recur xs ['s 0]))
+  ([([] :seq) a] a)
+  ([([x1 & xs] :seq) a] (recur xs ['s a])))
+
+#_
+(defn length
+  ([x] (match [x]
+         [([] :seq)] 0
+         [([x1 & xs] :seq)] (length xs ['s 0])))
+  ([x a] (match [x a]
+           [([] :seq) a] a
+           [([x1 & xs] :seq) a] (recur xs ['s a]))))
+
 (defun merger
-  ([[] y r] (concat r y))
-  ([x [] r] (concat r x))
-  ([([x1 & xs] :seq) ([y1 & ys] :seq) r]
-   (if (less-or-equal? x1 y1)
-     (recur xs (cons y1 ys) (conj r x))
-     (recur (cons x1 xs) ys (conj r y)))))
-
-(defn merger [x y r]
-  (match [x y r]
-    [[] y r] (concat r y)
-    [x [] r] (concat r x)
-    ))
-
-(defun merger
-  ([[] y r] (vec (concat r y)))
-  ([x [] r] (vec (concat x r)))
-  ([x  y r]
-   (let [x1 (first x)
-         y1 (first y)]
-     (if (less-or-equal? x1 y1)
-       (recur (subvec x 1) y (conj r x1))
-       (recur x (subvec y 1) (conj r y1))))))
-
-(rest [1 2 3])
-(subvec [1 2 3] 1)
+  ([([] :seq) y r] (concat r y))
+  ([x ([] :seq) r] (concat r x))
+  ([([x1 & xs] :seq) :as x ([y1 & ys] :seq) :as y r]
+    (if (less-or-equal? x1 y1)
+      (recur xs y (conj r x1))
+      (recur x ys (conj r y1)))))
 
 (defun merge-sort
-  ([[]] [])
-  ([]))
+  ([([] :seq)] [])
+  ([([x1] :seq)] [x1])
+  ([([_ & _] :seq) :as x]))
 
+(length [])
+(merge-sort [0])
+
+(merger [0] [['s 0]] [])
 (merger [['s 0]] [0] [])
+
 (merger [['s 0]] [] [])
 
 (less-or-equal? ['s 0] 0)
 (less-or-equal? ['s 0] 0 )
 
-(match [ []]
+(match [ [1 2]]
        [([] :seq)] "woop"
+  [([x1] :seq)] "wuup"
        :else false)
+
+(match [[1 2 3] 5]
+  [([x1 & xs] :seq) :as x y] [x y])
+
+(match [[1]]
+  [([] :seq)] "juba"
+  [([x1] :seq)] "jaba"
+  [([x1 & xs] :seq)] "tsuba"
+  :else 2)
 
 (match [[1 3 4]]
        [[x1 & [2 3]]] :yeh
@@ -100,3 +112,4 @@
 (match [[1 2 3]]
        [([x1 & xs] :seq)] xs)
 (let [[x1 & xs] [1 2 3]] xs)
+
