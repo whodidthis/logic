@@ -45,5 +45,5 @@
 
 (run 1 [q]
   (fresh [z]
-    (ar-stm [['five '* 'five] '+ ['! 'four]] z)
+    (ar-stm [#_['five '* 'five] #_'+ ['! 'four]] z)
     (== q z)))

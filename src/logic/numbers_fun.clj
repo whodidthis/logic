@@ -1,5 +1,5 @@
 (ns logic.numbers-fun
-  (:refer-clojure :exclude [even? odd? take drop merge])
+  (:refer-clojure :exclude [even? odd? take drop merge max integer?])
   (:require [clojure.core.match :refer [match]]
             [defun :refer [defun]]))
 
@@ -8,20 +8,38 @@
   ([['s x]] (recur x))
   ([_] false))
 
+(defn integer? [x]
+  (match x
+         0 true
+         ['s x1] (recur x1)
+         ['m x1] (recur x1)
+         :else false))
+
 (defun even?
   ([0] true)
   ([['s ['s x]]] (recur x))
+  ([['m ['m x]]] (recur x))
   ([_] false))
 
 (defun odd?
   ([['s 0]] true)
   ([['s ['s x]]] (recur x))
+  ([['m 0]] true)
+  ([['m ['m x]]] (recur x))
   ([_] false))
 
 (defun less?
-  ([0 ['s y]] true)
-  ([['s x] ['s y]] (recur x y))
+  ([['m x1] 0] true)
+  ([['m x1] ['m y1]] (recur x1 y1))
+  ([['m x1] ['s y1]] true)
+  ([0 ['s y1]] true)
+  ([['s x1] ['s y1]] (recur x1 y1))
   ([_ _] false))
+
+(less? 0 0)
+(less? ['m ['m 0]] ['m 0])
+(less? ['s 0] ['m 0])
+(greater? ['s ['s 0]] ['m ['m ['m 0]]])
 
 (defun less-or-equal?
   ([0 0] true)
@@ -34,23 +52,64 @@
   (less-or-equal? y x))
 
 (defun plus
+  ([x] x)
   ([0 y] y)
-  ([['s x1] y] (recur x1 ['s y])))
+  ([['s x1] y] (recur x1 ['s y]))
+  ([['m x1] y] (recur x1))
+  ([x y & more] (reduce plus (plus x y) more)))
+
+(plus 0 ['m 0])
+(plus 0 ['s 0] ['s ['s 0]] ['m 0] ['m ['m 0]])
+
+(defun neg
+  ([0] 0)
+  ([['s x1]] ['m (neg x1)])
+  ([['m x1]] ['s (neg x1)]))
 
 (defun minus
+  ([x] x)
   ([x 0] x)
-  ([['s x1] ['s y1]] (recur x1 y1)))
+  ([0 ['s y1]] (neg ['s y1]))
+  ([0 ['m y1]] (neg ['m y1]))
+  ([['s x1] ['s y1]] (recur x1 y1))
+  ([['m x1] ['s y1]] (recur ['m ['m x1]] y1))
+  ([x y] (plus x (neg y)))
+  ([x y & more] (reduce minus (minus x y) more)))
+
+(minus 0 ['m 0])
+(minus 0 ['s 0])
+(minus ['s ['s ['s 0]]] ['s ['s 0]] ['m 0] ['m 0] ['m ['m 0]] ['m ['m 0]] ['s ['s ['s ['s 0]]]])
+(minus ['s 0] ['m ['m ['m ['m 0]]]])
+(minus ['m 0] ['m 0])
+(minus 0 ['s 0])
+(minus 0 0)
+(minus 0 ['s ['s 0]])
+(minus ['s 0] ['m 0])
+(minus ['s 0] ['s 0])
+(minus ['s ['s 0]] ['s ['s ['s ['s ['s ['s 0]]]]]])
+(minus ['s 0] 0)
 
 (defun times
   ([0 y a] a)
   ([['s x1] y a] (recur x1 y (plus a y)))
+;  ([['m x1] ['m y1] a] (times (neg x1) ['m y1] (minus a ['m y1])))
+;  ([['m x1] y a] (neg (times (neg x1) y (plus a y))))
   ([x y] (recur x y 0)))
+
+(times ['s ['s 0]] ['s ['s 0]])
+(times ['m ['m 0]] ['s ['s 0]])
+(times ['m ['m 0]] ['m ['m 0]])
 
 (defun division
   ([x y a] (if (less? x y)
              a
              (recur (minus x y) y ['s a])))
   ([x y] (if (greater? y 0) (recur x y 0))))
+
+(defun max
+  ([x] x)
+  ([x y] (if (greater? x y) x y))
+  ([x y & more] (reduce max (max x y) more)))
 
 (defun length
   ([([] :seq)] 0)
