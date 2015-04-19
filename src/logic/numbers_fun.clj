@@ -10,10 +10,10 @@
 
 (defn integer? [x]
   (match x
-         0 true
-         ['s x1] (recur x1)
-         ['m x1] (recur x1)
-         :else false))
+    0 true
+    ['s x1] (recur x1)
+    ['m x1] (recur x1)
+    :else false))
 
 (defun even?
   ([0] true)
@@ -92,8 +92,8 @@
 (defun times
   ([0 y a] a)
   ([['s x1] y a] (recur x1 y (plus a y)))
-;  ([['m x1] ['m y1] a] (times (neg x1) ['m y1] (minus a ['m y1])))
-;  ([['m x1] y a] (neg (times (neg x1) y (plus a y))))
+  ;  ([['m x1] ['m y1] a] (times (neg x1) ['m y1] (minus a ['m y1])))
+  ;  ([['m x1] y a] (neg (times (neg x1) y (plus a y))))
   ([x y] (recur x y 0)))
 
 (times ['s ['s 0]] ['s ['s 0]])
@@ -155,8 +155,8 @@
   ([([] :seq)] [])
   ([([x1] :seq)] [x1])
   ([([_ & _] :seq) :as x]
-   (let [size (division (length x) ['s ['s 0]])]
-     (merge (merge-sort (take size x)) (merge-sort (drop size x))))))
+    (let [size (division (length x) ['s ['s 0]])]
+      (merge (merge-sort (take size x)) (merge-sort (drop size x))))))
 
 (length [])
 (merge-sort [['s ['s 0]] ['s ['s ['s 0]]] 0 0 ['s 0] 0])
@@ -171,9 +171,9 @@
 (less-or-equal? ['s 0] 0 )
 
 (match [ [1 2]]
-       [([] :seq)] "woop"
+  [([] :seq)] "woop"
   [([x1] :seq)] "wuup"
-       :else false)
+  :else false)
 
 (match [[1 2 3] 5]
   [([x1 & xs] :seq) :as x y] [x y])
@@ -185,10 +185,10 @@
   :else 2)
 
 (match [[1 3 4]]
-       [[x1 & [2 3]]] :yeh
-       [[x1 & [3 4]]] :meh)
+  [[x1 & [2 3]]] :yeh
+  [[x1 & [3 4]]] :meh)
 
 (match [[1 2 3]]
-       [([x1 & xs] :seq)] xs)
+  [([x1 & xs] :seq)] xs)
 (let [[x1 & xs] [1 2 3]] xs)
 
